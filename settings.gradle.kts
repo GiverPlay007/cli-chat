@@ -1,0 +1,2 @@
+rootProject.name = "cli-chat"
+
