@@ -8,10 +8,11 @@ import java.net.URI;
 
 public class WebSocketHandler extends WebSocketClient {
 
-  private boolean isRunning;
+  private final Chat chat;
 
-  public WebSocketHandler(String uri) {
+  public WebSocketHandler(Chat chat, String uri) {
     super(URI.create(uri));
+    this.chat = chat;
   }
 
   @Override
@@ -20,16 +21,15 @@ public class WebSocketHandler extends WebSocketClient {
   }
 
   @Override
-  public void onMessage(String message) {
-    JSONObject json = new JSONObject(message);
+  public void onMessage(String msg) {
+    JSONObject json = new JSONObject(msg);
     JSONObject data = json.getJSONObject("data");
 
-    String author = data.getString("author");
-    String content = data.getString("content");
-
-    System.out.print("\b\b");
-    System.out.printf("%s: %s%n", author, content);
-    System.out.print("> ");
+    switch (json.getString("type")) {
+      case "message":
+        processIncomingMessage(data);
+        break;
+    }
   }
 
   @Override
@@ -42,7 +42,13 @@ public class WebSocketHandler extends WebSocketClient {
     ex.printStackTrace();
   }
 
-  public boolean isRunning() {
-    return isRunning;
+  private void processIncomingMessage(JSONObject data) {
+    String author = data.getString("author");
+    String content = data.getString("content");
+    String id = data.getString("id");
+
+    Message message = new Message(content, new User(author, id), System.currentTimeMillis());
+
+    chat.onMessage(message);
   }
 }

@@ -13,7 +13,7 @@ public class Chat implements Runnable {
   }
 
   public Chat() {
-    this.handler = new WebSocketHandler("ws://localhost:4000");
+    this.handler = new WebSocketHandler(this, "ws://localhost:4000");
   }
 
   public void start() {
@@ -41,5 +41,15 @@ public class Chat implements Runnable {
 
       handler.send(json.toString());
     }
+  }
+
+  public void onMessage(Message message) {
+    printMessage(message);
+  }
+
+  public void printMessage(Message message) {
+    System.out.print("\b\b");
+    System.out.println(message);
+    System.out.println("> ");
   }
 }
